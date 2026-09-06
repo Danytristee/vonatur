@@ -32,7 +32,8 @@ export const contactFormSchema = z.object({
 export const contactUpdateFormSchema = contactFormSchema
   .omit({
     externalCode: true,
+    fullName: true,
   })
   .extend({
-  contactId: z.uuid(),
-});
+    contactId: z.uuid(),
+  });

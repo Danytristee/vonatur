@@ -75,11 +75,13 @@ export async function createContact(
   }
 }
 
-export async function updateContact(formData: FormData) {
+export async function updateContact(
+  _previousState: ContactActionState,
+  formData: FormData,
+): Promise<ContactActionState> {
   const parsed = contactUpdateFormSchema.safeParse({
     organizationId: formData.get("organizationId"),
     contactId: formData.get("contactId"),
-    fullName: formData.get("fullName"),
     phone: formData.get("phone"),
     currentStatus: formData.get("currentStatus"),
     currentLevel: formData.get("currentLevel"),
@@ -87,60 +89,61 @@ export async function updateContact(formData: FormData) {
   });
 
   if (!parsed.success) {
-    throw new Error(
-      parsed.error.issues[0]?.message ?? "Revisa los datos del contacto.",
+    return failureState(
+      parsed.error.issues[0]?.message ?? "Revisa los datos de la consultora.",
     );
   }
 
-  await assertOrganizationMembership(parsed.data.organizationId);
+  try {
+    await assertOrganizationMembership(parsed.data.organizationId);
 
-  const supabase = await createClient();
+    const supabase = await createClient();
 
-  const { data: existingContact, error: existingContactError } = await supabase
-    .from("contacts")
-    .select("full_name, phone, current_status, current_level, district")
-    .eq("id", parsed.data.contactId)
-    .eq("organization_id", parsed.data.organizationId)
-    .maybeSingle();
+    const { data: existingContact, error: existingContactError } = await supabase
+      .from("contacts")
+      .select("phone, current_status, current_level, district")
+      .eq("id", parsed.data.contactId)
+      .eq("organization_id", parsed.data.organizationId)
+      .maybeSingle();
 
-  if (existingContactError || !existingContact) {
-    throw new Error("No pudimos actualizar el contacto.", {
-      cause: existingContactError,
+    if (existingContactError || !existingContact) {
+      return failureState("No pudimos actualizar la consultora.");
+    }
+
+    const { error } = await supabase
+      .from("contacts")
+      .update({
+        phone: parsed.data.phone,
+        current_status: parsed.data.currentStatus,
+        current_level: parsed.data.currentLevel,
+        district: parsed.data.district,
+      })
+      .eq("id", parsed.data.contactId)
+      .eq("organization_id", parsed.data.organizationId);
+
+    if (error) {
+      return failureState("No pudimos actualizar la consultora.");
+    }
+
+    await logManualContactChanges({
+      supabase,
+      organizationId: parsed.data.organizationId,
+      contactId: parsed.data.contactId,
+      changes: [
+        ["phone", existingContact.phone, parsed.data.phone],
+        ["current_status", existingContact.current_status, parsed.data.currentStatus],
+        ["current_level", existingContact.current_level, parsed.data.currentLevel],
+        ["district", existingContact.district, parsed.data.district],
+      ],
     });
+
+    revalidatePath("/consultoras");
+    return { ok: true, message: null };
+  } catch (error) {
+    return failureState(
+      error instanceof Error ? error.message : "No pudimos actualizar la consultora.",
+    );
   }
-
-  const { error } = await supabase
-    .from("contacts")
-    .update({
-      full_name: parsed.data.fullName,
-      phone: parsed.data.phone,
-      current_status: parsed.data.currentStatus,
-      current_level: parsed.data.currentLevel,
-      district: parsed.data.district,
-    })
-    .eq("id", parsed.data.contactId)
-    .eq("organization_id", parsed.data.organizationId);
-
-  if (error) {
-    throw new Error("No pudimos actualizar el contacto.", {
-      cause: error,
-    });
-  }
-
-  await logManualContactChanges({
-    supabase,
-    organizationId: parsed.data.organizationId,
-    contactId: parsed.data.contactId,
-    changes: [
-      ["full_name", existingContact.full_name, parsed.data.fullName],
-      ["phone", existingContact.phone, parsed.data.phone],
-      ["current_status", existingContact.current_status, parsed.data.currentStatus],
-      ["current_level", existingContact.current_level, parsed.data.currentLevel],
-      ["district", existingContact.district, parsed.data.district],
-    ],
-  });
-
-  revalidatePath("/consultoras");
 }
 
 type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;

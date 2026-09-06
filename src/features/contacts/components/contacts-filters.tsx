@@ -30,7 +30,7 @@ function FilterSelect({
         id={name}
         name={name}
         defaultValue={value ?? ""}
-        className="h-10 rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/20"
+        className="h-10 w-full rounded-lg border border-input bg-card px-3 text-sm text-foreground outline-none transition-colors focus:border-primary focus:ring-2 focus:ring-ring/20"
       >
         <option value="">Todos</option>
         {options.map((option) => (
@@ -49,7 +49,7 @@ export function ContactsFilters({
   options,
 }: ContactsFiltersProps) {
   return (
-    <form className="grid gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-[1fr_auto_auto_auto_auto]">
+    <form className="grid grid-cols-1 gap-3 rounded-xl border border-border bg-card p-4 sm:grid-cols-2 lg:grid-cols-[1fr_auto_auto_auto_auto] lg:items-end">
       <input type="hidden" name="organization" value={organizationId} />
 
       <div className="grid gap-1.5">
@@ -90,8 +90,8 @@ export function ContactsFilters({
         options={options.districts}
       />
 
-      <div className="flex items-end">
-        <Button type="submit" variant="outline" className="h-10 w-full sm:w-auto">
+      <div className="flex items-end sm:col-span-2 lg:col-span-1">
+        <Button type="submit" variant="outline" className="h-10 w-full lg:w-auto">
           Filtrar
         </Button>
       </div>
