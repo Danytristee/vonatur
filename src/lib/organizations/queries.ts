@@ -23,7 +23,10 @@ export async function getCurrentUserOrganizations(): Promise<CurrentUserOrganiza
     error: userError,
   } = await supabase.auth.getUser();
 
-  if (userError) {
+  // An absent session is the ordinary anonymous case, not a failure. Supabase
+  // signals it with AuthSessionMissingError, so throwing here would turn every
+  // logged-out request into a 500 instead of letting the caller redirect.
+  if (userError && userError.name !== "AuthSessionMissingError") {
     throw new Error("Unable to verify the current Supabase user", {
       cause: userError,
     });
