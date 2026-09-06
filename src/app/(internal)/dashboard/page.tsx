@@ -1,4 +1,11 @@
-import { ArrowRight, CircleDollarSign, Contact, RotateCcw } from "lucide-react";
+import {
+  ArrowRight,
+  CircleDollarSign,
+  Contact,
+  Download,
+  RotateCcw,
+  Upload,
+} from "lucide-react";
 import Link from "next/link";
 import type { ComponentType } from "react";
 
@@ -8,6 +15,7 @@ import {
   PreparedSection,
 } from "@/features/app-shell/section-states";
 import { getDashboardSummary } from "@/features/dashboard/queries";
+import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
@@ -37,7 +45,7 @@ export default async function DashboardPage({
       <div className="grid gap-6">
         <PageHeader
           title="Inicio"
-          description="Panel interno de Vonatur para ciclos, contactos, deudas e importaciones."
+          description="Panel interno de Vonatur para ciclos, consultoras, deudas e importaciones."
         />
         <EmptyState
           title="Tu usuario aún no tiene organización"
@@ -54,6 +62,26 @@ export default async function DashboardPage({
       <PageHeader
         title="Inicio"
         description={`Resumen operativo de ${summary.selectedOrganizationName}. La prioridad actual es preparar ciclos e importaciones sin activar nada antes de confirmar los archivos.`}
+        action={
+          <div className="flex flex-wrap gap-3">
+            {summary.activeCycleId ? (
+              <Button variant="outline" asChild>
+                <a
+                  href={`/api/ciclos/${summary.activeCycleId}/cambios?organization=${summary.selectedOrganizationId}`}
+                >
+                  <Download aria-hidden="true" />
+                  Finalizar ciclo
+                </a>
+              </Button>
+            ) : null}
+            <Button asChild>
+              <Link href={`/importaciones${organizationQuery}`}>
+                <Upload aria-hidden="true" />
+                Iniciar ciclo
+              </Link>
+            </Button>
+          </div>
+        }
       />
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -71,9 +99,9 @@ export default async function DashboardPage({
         />
         <SummaryCard
           icon={Contact}
-          label="Contactos"
+          label="Consultoras"
           value={String(summary.contactCount)}
-          href={`/contactos${organizationQuery}`}
+          href={`/consultoras${organizationQuery}`}
         />
         <SummaryCard
           icon={CircleDollarSign}
@@ -101,8 +129,8 @@ export default async function DashboardPage({
             <ActionLink href={`/importaciones${organizationQuery}`}>
               Preparar importación de archivos
             </ActionLink>
-            <ActionLink href={`/contactos${organizationQuery}`}>
-              Mantener contactos base
+            <ActionLink href={`/consultoras${organizationQuery}`}>
+              Mantener consultoras base
             </ActionLink>
           </div>
         </Card>

@@ -21,7 +21,7 @@ export default async function CommunicationsPage({
       sectionTitle="Integración no habilitada"
       sectionDescription="La pantalla existe para mantener clara la arquitectura futura. No envía mensajes, no agenda trabajos y no llama servicios externos."
       steps={[
-        "Definir audiencia desde contactos y deudas.",
+        "Definir audiencia desde consultoras y deudas.",
         "Preparar plantillas revisables.",
         "Conectar canales externos en una fase posterior.",
       ]}

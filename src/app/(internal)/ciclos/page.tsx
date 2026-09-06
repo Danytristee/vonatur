@@ -1,4 +1,4 @@
-import { ArrowRight } from "lucide-react";
+import { Download, Upload } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -22,6 +22,7 @@ export default async function CyclesPage({ searchParams }: CyclesPageProps) {
   const params = await searchParams;
   const { organizations, selectedOrganizationId, cycles } =
     await getCyclesPageData(params.organization);
+  const activeCycle = cycles.find((cycle) => cycle.status === "active");
 
   if (!selectedOrganizationId) {
     return (
@@ -41,12 +42,24 @@ export default async function CyclesPage({ searchParams }: CyclesPageProps) {
         title="Ciclos comerciales"
         description="Crea ciclos en borrador y revisa su estado. La activación queda bloqueada hasta completar importación, preview y confirmación."
         action={
-          <Button asChild size="sm">
-            <Link href={`/importaciones?organization=${selectedOrganizationId}`}>
-              Ir a importaciones
-              <ArrowRight />
-            </Link>
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            {activeCycle ? (
+              <Button variant="outline" size="sm" asChild>
+                <a
+                  href={`/api/ciclos/${activeCycle.id}/cambios?organization=${selectedOrganizationId}`}
+                >
+                  <Download aria-hidden="true" />
+                  Finalizar ciclo
+                </a>
+              </Button>
+            ) : null}
+            <Button size="sm" asChild>
+              <Link href={`/importaciones?organization=${selectedOrganizationId}`}>
+                <Upload aria-hidden="true" />
+                Iniciar ciclo
+              </Link>
+            </Button>
+          </div>
         }
       />
 

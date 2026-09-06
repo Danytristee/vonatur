@@ -32,7 +32,7 @@ const navigationItems = [
   { href: "/dashboard", label: "Inicio", icon: Home },
   { href: "/ciclos", label: "Ciclos", icon: RotateCcw },
   { href: "/importaciones", label: "Importaciones", icon: Upload },
-  { href: "/contactos", label: "Contactos", icon: Contact },
+  { href: "/consultoras", label: "Consultoras", icon: Contact },
   { href: "/deudas", label: "Deudas", icon: CircleDollarSign },
   { href: "/promociones", label: "Promociones", icon: Megaphone },
   { href: "/comunicaciones", label: "Comunicaciones", icon: MessageSquareText },

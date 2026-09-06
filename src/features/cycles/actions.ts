@@ -54,6 +54,7 @@ export async function createDraftCycle(
     }
 
     revalidatePath("/ciclos");
+    revalidatePath("/importaciones");
     return successState;
   } catch (error) {
     return failureState(

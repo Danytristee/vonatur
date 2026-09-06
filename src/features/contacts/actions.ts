@@ -66,7 +66,7 @@ export async function createContact(
       return failureState("No pudimos crear el contacto.");
     }
 
-    revalidatePath("/contactos");
+    revalidatePath("/consultoras");
     return successState;
   } catch (error) {
     return failureState(
@@ -95,6 +95,20 @@ export async function updateContact(formData: FormData) {
   await assertOrganizationMembership(parsed.data.organizationId);
 
   const supabase = await createClient();
+
+  const { data: existingContact, error: existingContactError } = await supabase
+    .from("contacts")
+    .select("full_name, phone, current_status, current_level, district")
+    .eq("id", parsed.data.contactId)
+    .eq("organization_id", parsed.data.organizationId)
+    .maybeSingle();
+
+  if (existingContactError || !existingContact) {
+    throw new Error("No pudimos actualizar el contacto.", {
+      cause: existingContactError,
+    });
+  }
+
   const { error } = await supabase
     .from("contacts")
     .update({
@@ -113,5 +127,61 @@ export async function updateContact(formData: FormData) {
     });
   }
 
-  revalidatePath("/contactos");
+  await logManualContactChanges({
+    supabase,
+    organizationId: parsed.data.organizationId,
+    contactId: parsed.data.contactId,
+    changes: [
+      ["full_name", existingContact.full_name, parsed.data.fullName],
+      ["phone", existingContact.phone, parsed.data.phone],
+      ["current_status", existingContact.current_status, parsed.data.currentStatus],
+      ["current_level", existingContact.current_level, parsed.data.currentLevel],
+      ["district", existingContact.district, parsed.data.district],
+    ],
+  });
+
+  revalidatePath("/consultoras");
+}
+
+type SupabaseServerClient = Awaited<ReturnType<typeof createClient>>;
+
+async function logManualContactChanges({
+  supabase,
+  organizationId,
+  contactId,
+  changes,
+}: {
+  supabase: SupabaseServerClient;
+  organizationId: string;
+  contactId: string;
+  changes: [string, string | null, string | null][];
+}) {
+  const changedFields = changes.filter(([, oldValue, newValue]) => oldValue !== newValue);
+
+  if (changedFields.length === 0) {
+    return;
+  }
+
+  const { data: activeCycle } = await supabase
+    .from("cycles")
+    .select("id")
+    .eq("organization_id", organizationId)
+    .eq("status", "active")
+    .maybeSingle();
+
+  if (!activeCycle) {
+    return;
+  }
+
+  await supabase.from("audit_logs").insert(
+    changedFields.map(([fieldName, oldValue, newValue]) => ({
+      organization_id: organizationId,
+      cycle_id: activeCycle.id,
+      contact_id: contactId,
+      field_name: fieldName,
+      old_value: oldValue,
+      new_value: newValue,
+      source: "manual",
+    })),
+  );
 }

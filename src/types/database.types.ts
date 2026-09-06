@@ -39,6 +39,57 @@ export type Database = {
   }
   public: {
     Tables: {
+      audit_logs: {
+        Row: {
+          contact_id: string
+          created_at: string
+          cycle_id: string
+          field_name: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          organization_id: string
+          source: string
+        }
+        Insert: {
+          contact_id: string
+          created_at?: string
+          cycle_id: string
+          field_name: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          organization_id: string
+          source?: string
+        }
+        Update: {
+          contact_id?: string
+          created_at?: string
+          cycle_id?: string
+          field_name?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          organization_id?: string
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "audit_logs_contact_fkey"
+            columns: ["contact_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id", "organization_id"]
+          },
+          {
+            foreignKeyName: "audit_logs_cycle_fkey"
+            columns: ["cycle_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
       contact_cycle_data: {
         Row: {
           accumulated_points: number | null
@@ -320,6 +371,15 @@ export type Database = {
       activate_cycle: {
         Args: { p_cycle_id: string; p_organization_id: string }
         Returns: undefined
+      }
+      confirm_cycle_import: {
+        Args: {
+          p_contacts: Json
+          p_cycle_id: string
+          p_debts: Json
+          p_organization_id: string
+        }
+        Returns: Json
       }
       is_organization_member: {
         Args: { p_organization_id: string }

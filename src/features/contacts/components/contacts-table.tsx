@@ -1,5 +1,6 @@
 import { updateContact } from "@/features/contacts/actions";
 import type { ContactListItem } from "@/features/contacts/types";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -8,16 +9,43 @@ type ContactsTableProps = {
   contacts: ContactListItem[];
 };
 
+const currencyFormatter = new Intl.NumberFormat("es-PE", {
+  style: "currency",
+  currency: "PEN",
+});
+
+function DebtCell({ contact }: { contact: ContactListItem }) {
+  if (!contact.debtSummary) {
+    return <span className="text-xs text-muted-foreground">Sin deuda</span>;
+  }
+
+  const { commercialStatus, currentBalanceTotal, debtCount } = contact.debtSummary;
+  const isPaid = commercialStatus?.toLowerCase().includes("pagad");
+
+  return (
+    <div className="grid gap-1">
+      <Badge variant={isPaid ? "success" : "warning"}>
+        {commercialStatus ?? "Sin situación"}
+      </Badge>
+      <span className="text-sm font-medium text-foreground">
+        {currencyFormatter.format(currentBalanceTotal)}
+      </span>
+      <span className="text-xs text-muted-foreground">
+        {debtCount} título{debtCount === 1 ? "" : "s"}
+      </span>
+    </div>
+  );
+}
+
 export function ContactsTable({ contacts }: ContactsTableProps) {
   if (contacts.length === 0) {
     return (
       <Card className="border-dashed p-8 text-center shadow-none">
         <h2 className="text-base font-semibold text-foreground">
-          Aún no hay contactos
+          No se encontraron consultoras
         </h2>
         <p className="mt-2 text-sm text-muted-foreground">
-          Crea contactos base para que luego las importaciones puedan
-          emparejarse por código.
+          Ajusta la búsqueda o los filtros, o crea una consultora nueva.
         </p>
       </Card>
     );
@@ -26,7 +54,7 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
   return (
     <Card className="overflow-hidden p-0">
       <div className="overflow-x-auto">
-        <table className="min-w-[980px] divide-y divide-border text-sm">
+        <table className="min-w-[1100px] divide-y divide-border text-sm">
           <thead className="bg-secondary text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3">Código</th>
@@ -35,6 +63,7 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
               <th className="px-4 py-3">Estado</th>
               <th className="px-4 py-3">Nivel</th>
               <th className="px-4 py-3">Distrito</th>
+              <th className="px-4 py-3">Deuda (ciclo activo)</th>
               <th className="px-4 py-3 text-right">Acción</th>
             </tr>
           </thead>
@@ -129,6 +158,9 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
                     defaultValue={contact.district ?? ""}
                     className="h-9 w-36"
                   />
+                </td>
+                <td className="px-4 py-3">
+                  <DebtCell contact={contact} />
                 </td>
                 <td className="px-4 py-3 text-right">
                   <Button

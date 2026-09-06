@@ -10,6 +10,7 @@ export type DashboardSummary = {
   organizations: Awaited<ReturnType<typeof getCurrentUserOrganizations>>;
   selectedOrganizationId: string | null;
   selectedOrganizationName: string | null;
+  activeCycleId: string | null;
   activeCycleLabel: string | null;
   cycleCount: number;
   contactCount: number;
@@ -38,6 +39,7 @@ export async function getDashboardSummary(
       organizations,
       selectedOrganizationId: null,
       selectedOrganizationName: null,
+      activeCycleId: null,
       activeCycleLabel: null,
       cycleCount: 0,
       contactCount: 0,
@@ -66,7 +68,7 @@ export async function getDashboardSummary(
       .eq("organization_id", selectedOrganization.id),
     supabase
       .from("cycles")
-      .select("year, cycle_number, status")
+      .select("id, year, cycle_number, status")
       .eq("organization_id", selectedOrganization.id)
       .eq("status", "active")
       .maybeSingle(),
@@ -89,6 +91,7 @@ export async function getDashboardSummary(
     organizations,
     selectedOrganizationId: selectedOrganization.id,
     selectedOrganizationName: selectedOrganization.name,
+    activeCycleId: activeCycle?.id ?? null,
     activeCycleLabel: activeCycle
       ? `${activeCycle.year} - Ciclo ${activeCycle.cycle_number}`
       : null,

@@ -31,7 +31,7 @@ export default async function LoginPage() {
               Bienvenida a Vonatur
             </h1>
             <p className="text-sm leading-6 text-muted-foreground">
-              Ingresa con tu cuenta para ver tus ciclos, contactos y deudas.
+              Ingresa con tu cuenta para ver tus ciclos, consultoras y deudas.
             </p>
           </div>
         </div>
