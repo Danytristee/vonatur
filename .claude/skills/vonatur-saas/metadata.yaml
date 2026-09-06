@@ -1,0 +1,13 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/agents-inc/agents-inc/main/packages/cli/src/schemas/custom-metadata.schema.json
+custom: true
+category: meta-design
+slug: vonatur-saas
+domain: meta
+author: "@vonatur"
+displayName: Vonatur SaaS
+cliDescription: Vonatur multi-tenant business rules and invariants
+usageGuidance: >-
+  Use whenever touching organization_id tenant scoping, RLS policies, the cycles/contacts/debts
+  schema, the Channel Extract or Debt Report Excel imports, external_code contact matching, cycle
+  activation/replacement, or the importaciones-ciclos/promociones-ciclos Storage buckets in this
+  repository.
