@@ -1,5 +1,9 @@
+import { Building2, Sparkles } from "lucide-react";
 import Link from "next/link";
 import type { ReactNode } from "react";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 
 type PageHeaderProps = {
   eyebrow?: string;
@@ -15,13 +19,15 @@ export function PageHeader({
   title,
 }: PageHeaderProps) {
   return (
-    <div className="flex flex-col gap-4 border-b border-zinc-200 pb-5 md:flex-row md:items-end md:justify-between">
+    <div className="flex flex-col gap-4 border-b border-border pb-5 md:flex-row md:items-end md:justify-between">
       <div className="max-w-3xl">
-        <p className="text-sm font-medium text-emerald-700">{eyebrow}</p>
-        <h1 className="mt-1 text-2xl font-semibold tracking-normal text-zinc-950">
+        <p className="text-sm font-medium text-primary">{eyebrow}</p>
+        <h1 className="mt-1 text-2xl font-semibold text-foreground">
           {title}
         </h1>
-        <p className="mt-2 text-sm leading-6 text-zinc-600">{description}</p>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {description}
+        </p>
       </div>
       {action}
     </div>
@@ -42,20 +48,23 @@ export function EmptyState({
   title,
 }: EmptyStateProps) {
   return (
-    <section className="rounded-md border border-dashed border-zinc-300 bg-white p-8 text-center">
-      <h2 className="text-base font-semibold text-zinc-950">{title}</h2>
-      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-zinc-600">
+    <Card
+      role="status"
+      className="border-dashed bg-card/60 p-8 text-center shadow-none"
+    >
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-accent">
+        <Sparkles className="size-6 text-accent-foreground" aria-hidden="true" />
+      </div>
+      <h2 className="mt-4 text-base font-semibold text-foreground">{title}</h2>
+      <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
         {description}
       </p>
       {actionHref && actionLabel ? (
-        <Link
-          href={actionHref}
-          className="mt-5 inline-flex h-10 items-center rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
-        >
-          {actionLabel}
-        </Link>
+        <Button asChild className="mt-5">
+          <Link href={actionHref}>{actionLabel}</Link>
+        </Button>
       ) : null}
-    </section>
+    </Card>
   );
 }
 
@@ -71,16 +80,18 @@ export function PreparedSection({
   title,
 }: PreparedSectionProps) {
   return (
-    <section className="grid gap-4 rounded-md border border-zinc-200 bg-white p-5">
+    <Card className="p-5">
       <div>
-        <h2 className="text-base font-semibold text-zinc-950">{title}</h2>
-        <p className="mt-2 text-sm leading-6 text-zinc-600">{description}</p>
+        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+        <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          {description}
+        </p>
       </div>
       {steps.length > 0 ? (
-        <ol className="grid gap-2 text-sm text-zinc-700">
+        <ol className="mt-4 grid gap-3 text-sm text-foreground/90">
           {steps.map((step, index) => (
             <li key={step} className="flex gap-3">
-              <span className="flex size-6 shrink-0 items-center justify-center rounded-md bg-zinc-100 text-xs font-semibold text-zinc-600">
+              <span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-accent text-xs font-semibold text-accent-foreground">
                 {index + 1}
               </span>
               <span className="pt-0.5">{step}</span>
@@ -88,15 +99,26 @@ export function PreparedSection({
           ))}
         </ol>
       ) : null}
-    </section>
+    </Card>
   );
 }
 
 export function NoOrganizationState() {
   return (
-    <EmptyState
-      title="Tu usuario aún no tiene organización"
-      description="Crea la primera organización y su membresía en Supabase. Cuando exista un registro en organization_members para tu usuario, Vonatur mostrará los datos internos de esa organización."
-    />
+    <Card className="p-8 text-center shadow-none">
+      <div className="mx-auto flex size-12 items-center justify-center rounded-full bg-accent">
+        <Building2 className="size-6 text-accent-foreground" aria-hidden="true" />
+      </div>
+      <CardContent className="p-0 pt-4">
+        <h2 className="text-base font-semibold text-foreground">
+          Tu usuario aún no tiene organización
+        </h2>
+        <p className="mx-auto mt-2 max-w-xl text-sm leading-6 text-muted-foreground">
+          Crea la primera organización y su membresía en Supabase. Cuando
+          exista un registro en organization_members para tu usuario, Vonatur
+          mostrará los datos internos de esa organización.
+        </p>
+      </CardContent>
+    </Card>
   );
 }

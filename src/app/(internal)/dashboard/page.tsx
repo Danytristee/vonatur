@@ -1,4 +1,6 @@
+import { ArrowRight, CircleDollarSign, Contact, RotateCcw } from "lucide-react";
 import Link from "next/link";
+import type { ComponentType } from "react";
 
 import {
   EmptyState,
@@ -6,6 +8,7 @@ import {
   PreparedSection,
 } from "@/features/app-shell/section-states";
 import { getDashboardSummary } from "@/features/dashboard/queries";
+import { Card } from "@/components/ui/card";
 
 export const dynamic = "force-dynamic";
 
@@ -55,21 +58,25 @@ export default async function DashboardPage({
 
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
+          icon={RotateCcw}
           label="Ciclo activo"
           value={summary.activeCycleLabel ?? "Sin ciclo activo"}
           href={`/ciclos${organizationQuery}`}
         />
         <SummaryCard
+          icon={RotateCcw}
           label="Ciclos registrados"
           value={String(summary.cycleCount)}
           href={`/ciclos${organizationQuery}`}
         />
         <SummaryCard
+          icon={Contact}
           label="Contactos"
           value={String(summary.contactCount)}
           href={`/contactos${organizationQuery}`}
         />
         <SummaryCard
+          icon={CircleDollarSign}
           label="Deudas"
           value={String(summary.debtCount)}
           href={`/deudas${organizationQuery}`}
@@ -83,8 +90,8 @@ export default async function DashboardPage({
           steps={workflowSteps}
         />
 
-        <section className="grid gap-3 rounded-md border border-zinc-200 bg-white p-5">
-          <h2 className="text-base font-semibold text-zinc-950">
+        <Card className="grid gap-3 p-5">
+          <h2 className="text-base font-semibold text-foreground">
             Próximas acciones
           </h2>
           <div className="grid gap-2">
@@ -98,7 +105,7 @@ export default async function DashboardPage({
               Mantener contactos base
             </ActionLink>
           </div>
-        </section>
+        </Card>
       </div>
     </div>
   );
@@ -106,22 +113,29 @@ export default async function DashboardPage({
 
 function SummaryCard({
   href,
+  icon: Icon,
   label,
   value,
 }: {
   href: string;
+  icon: ComponentType<{ className?: string }>;
   label: string;
   value: string;
 }) {
   return (
     <Link
       href={href}
-      className="grid min-h-28 gap-2 rounded-md border border-zinc-200 bg-white p-4 transition hover:border-emerald-200 hover:bg-emerald-50/40 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
+      className="grid min-h-28 gap-3 rounded-xl border border-border bg-card p-4 shadow-sm transition-colors hover:border-primary/30 hover:bg-accent/40 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
-      <span className="text-sm text-zinc-600">{label}</span>
-      <span className="text-2xl font-semibold tracking-normal text-zinc-950">
-        {value}
-      </span>
+      <div className="flex size-9 items-center justify-center rounded-lg bg-accent">
+        <Icon className="size-5 text-accent-foreground" />
+      </div>
+      <div>
+        <span className="block text-sm text-muted-foreground">{label}</span>
+        <span className="block text-2xl font-semibold text-foreground">
+          {value}
+        </span>
+      </div>
     </Link>
   );
 }
@@ -136,9 +150,10 @@ function ActionLink({
   return (
     <Link
       href={href}
-      className="rounded-md border border-zinc-200 px-3 py-2 text-sm font-medium text-zinc-800 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
+      className="flex items-center justify-between rounded-lg border border-border px-3 py-2.5 text-sm font-medium text-foreground transition-colors hover:bg-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
     >
       {children}
+      <ArrowRight className="size-4 shrink-0 text-muted-foreground" />
     </Link>
   );
 }

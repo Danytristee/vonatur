@@ -1,11 +1,16 @@
 "use client";
 
-import { useActionState } from "react";
+import { Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { useActionState, useId, useState } from "react";
 
 import {
   type LoginActionState,
   signInWithPassword,
 } from "@/features/auth/actions";
+import { Alert } from "@/components/ui/alert";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 const initialState: LoginActionState = {
   message: null,
@@ -16,50 +21,71 @@ export function LoginForm() {
     signInWithPassword,
     initialState,
   );
+  const [showPassword, setShowPassword] = useState(false);
+  const emailId = useId();
+  const passwordId = useId();
 
   return (
     <form action={formAction} className="grid gap-5" noValidate>
       <div className="grid gap-2">
-        <label className="text-sm font-medium text-zinc-900" htmlFor="email">
-          Correo
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          required
-          className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-base text-zinc-950 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-        />
+        <Label htmlFor={emailId}>Correo electrónico</Label>
+        <div className="relative">
+          <Mail
+            className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            id={emailId}
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="tu@correo.com"
+            required
+            className="pl-10"
+          />
+        </div>
       </div>
 
       <div className="grid gap-2">
-        <label className="text-sm font-medium text-zinc-900" htmlFor="password">
-          Contraseña
-        </label>
-        <input
-          id="password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-          className="h-11 rounded-md border border-zinc-300 bg-white px-3 text-base text-zinc-950 outline-none transition focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
-        />
+        <Label htmlFor={passwordId}>Contraseña</Label>
+        <div className="relative">
+          <Lock
+            className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
+            aria-hidden="true"
+          />
+          <Input
+            id={passwordId}
+            name="password"
+            type={showPassword ? "text" : "password"}
+            autoComplete="current-password"
+            required
+            className="pl-10 pr-11"
+          />
+          <button
+            type="button"
+            onClick={() => setShowPassword((value) => !value)}
+            aria-label={
+              showPassword ? "Ocultar contraseña" : "Mostrar contraseña"
+            }
+            aria-pressed={showPassword}
+            className="absolute right-2 top-1/2 flex size-8 -translate-y-1/2 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-secondary hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+          >
+            {showPassword ? (
+              <EyeOff className="size-5" aria-hidden="true" />
+            ) : (
+              <Eye className="size-5" aria-hidden="true" />
+            )}
+          </button>
+        </div>
       </div>
 
       {state.message ? (
-        <p className="rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-800">
-          {state.message}
-        </p>
+        <Alert variant="destructive">{state.message}</Alert>
       ) : null}
 
-      <button
-        type="submit"
-        disabled={isPending}
-        className="h-11 rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 disabled:cursor-not-allowed disabled:bg-zinc-400"
-      >
-        {isPending ? "Entrando..." : "Entrar"}
-      </button>
+      <Button type="submit" size="lg" disabled={isPending} className="w-full">
+        {isPending ? "Ingresando..." : "Iniciar sesión"}
+      </Button>
     </form>
   );
 }

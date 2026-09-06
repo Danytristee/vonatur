@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { LoginForm } from "@/features/auth/components/login-form";
+import { Alert } from "@/components/ui/alert";
 import { hasSupabaseBrowserEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
@@ -19,25 +20,30 @@ export default async function LoginPage() {
   }
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-10">
-      <section className="w-full max-w-sm rounded-md border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="mb-6 grid gap-2">
-          <p className="text-sm font-medium text-emerald-700">Vonatur</p>
-          <h1 className="text-2xl font-semibold text-zinc-950">Iniciar sesión</h1>
-          <p className="text-sm leading-6 text-zinc-600">
-            Accede con tu cuenta autorizada para entrar al panel interno de tu
-            organización.
-          </p>
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+      <section className="w-full max-w-sm rounded-xl border border-border bg-card p-8 shadow-sm">
+        <div className="mb-7 grid justify-items-center gap-3 text-center">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-primary text-xl font-bold text-primary-foreground">
+            V
+          </div>
+          <div className="grid gap-1">
+            <h1 className="text-2xl font-semibold text-foreground">
+              Bienvenida a Vonatur
+            </h1>
+            <p className="text-sm leading-6 text-muted-foreground">
+              Ingresa con tu cuenta para ver tus ciclos, contactos y deudas.
+            </p>
+          </div>
         </div>
 
         {isSupabaseConfigured ? (
           <LoginForm />
         ) : (
-          <div className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-900">
+          <Alert variant="warning">
             Configura `NEXT_PUBLIC_SUPABASE_URL` y
-            `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para habilitar el
-            inicio de sesión.
-          </div>
+            `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para
+            habilitar el inicio de sesión.
+          </Alert>
         )}
       </section>
     </main>

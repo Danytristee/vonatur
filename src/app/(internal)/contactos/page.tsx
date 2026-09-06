@@ -1,3 +1,5 @@
+import { Search } from "lucide-react";
+
 import {
   NoOrganizationState,
   PageHeader,
@@ -5,6 +7,8 @@ import {
 import { ContactsTable } from "@/features/contacts/components/contacts-table";
 import { CreateContactForm } from "@/features/contacts/components/create-contact-form";
 import { getContactsPageData } from "@/features/contacts/queries";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 
 export const dynamic = "force-dynamic";
 
@@ -45,10 +49,10 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
         <section className="grid gap-3">
           <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <h2 className="text-base font-semibold text-zinc-950">
+              <h2 className="text-base font-semibold text-foreground">
                 Directorio
               </h2>
-              <p className="text-sm text-zinc-600">
+              <p className="text-sm text-muted-foreground">
                 {contacts.length} contacto{contacts.length === 1 ? "" : "s"}
               </p>
             </div>
@@ -62,19 +66,22 @@ export default async function ContactsPage({ searchParams }: ContactsPageProps) 
               <label className="sr-only" htmlFor="q">
                 Buscar contactos
               </label>
-              <input
-                id="q"
-                name="q"
-                defaultValue={params.q ?? ""}
-                placeholder="Buscar por código, nombre o teléfono"
-                className="h-10 min-w-0 flex-1 rounded-md border border-zinc-300 px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 md:w-80"
-              />
-              <button
-                type="submit"
-                className="h-10 rounded-md border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
-              >
+              <div className="relative min-w-0 flex-1 md:w-80">
+                <Search
+                  className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground"
+                  aria-hidden="true"
+                />
+                <Input
+                  id="q"
+                  name="q"
+                  defaultValue={params.q ?? ""}
+                  placeholder="Buscar por código, nombre o teléfono"
+                  className="h-10 pl-9"
+                />
+              </div>
+              <Button type="submit" variant="outline" className="h-10">
                 Buscar
-              </button>
+              </Button>
             </form>
           </div>
 

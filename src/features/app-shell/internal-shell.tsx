@@ -2,10 +2,10 @@
 
 import {
   Building2,
-  ChevronDown,
   CircleDollarSign,
   Contact,
   Home,
+  LogOut,
   Megaphone,
   MessageSquareText,
   RotateCcw,
@@ -18,6 +18,15 @@ import type { ReactNode } from "react";
 
 import { signOut } from "@/features/auth/actions";
 import type { CurrentUserOrganization } from "@/lib/organizations/queries";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const navigationItems = [
   { href: "/dashboard", label: "Inicio", icon: Home },
@@ -51,6 +60,10 @@ export function InternalShell({
     )?.id ??
     organizations[0]?.id ??
     "";
+  const selectedOrganizationName = organizations.find(
+    (organization) => organization.id === selectedOrganizationId,
+  )?.name;
+  const userInitial = userEmail.trim().charAt(0).toUpperCase() || "U";
 
   function handleOrganizationChange(value: string) {
     const params = new URLSearchParams(searchParams.toString());
@@ -59,48 +72,46 @@ export function InternalShell({
   }
 
   return (
-    <div className="min-h-screen bg-zinc-100 text-zinc-950">
+    <div className="min-h-screen bg-background text-foreground">
       <div className="flex min-h-screen flex-col lg:flex-row">
-        <aside className="border-b border-zinc-200 bg-white lg:w-72 lg:border-b-0 lg:border-r">
-          <div className="flex h-full flex-col gap-5 px-4 py-4">
-            <div className="flex items-center gap-3 px-2">
-              <div className="flex size-10 items-center justify-center rounded-md bg-emerald-700 text-sm font-bold text-white">
+        <aside className="border-b border-border bg-card lg:w-72 lg:border-b-0 lg:border-r">
+          <div className="flex h-full flex-col gap-6 px-4 py-5">
+            <div className="flex items-center gap-3 px-1">
+              <div className="flex size-10 items-center justify-center rounded-xl bg-primary text-sm font-bold text-primary-foreground">
                 V
               </div>
               <div>
-                <p className="text-base font-semibold">Vonatur</p>
-                <p className="text-xs text-zinc-500">Gestión comercial</p>
+                <p className="text-base font-semibold leading-tight">Vonatur</p>
+                <p className="text-xs text-muted-foreground">Gestión comercial</p>
               </div>
             </div>
 
-            <div className="grid gap-2 rounded-md border border-zinc-200 bg-zinc-50 p-3">
-              <label
-                className="text-xs font-semibold uppercase tracking-normal text-zinc-500"
-                htmlFor="organization"
-              >
+            <div className="grid gap-1.5">
+              <span className="px-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                 Organización
-              </label>
-              <div className="relative">
-                <Building2 className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
-                <select
-                  id="organization"
-                  value={selectedOrganizationId}
-                  disabled={organizations.length === 0}
-                  onChange={(event) => handleOrganizationChange(event.target.value)}
-                  className="h-10 w-full appearance-none rounded-md border border-zinc-300 bg-white pl-9 pr-9 text-sm font-medium outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100 disabled:cursor-not-allowed disabled:bg-zinc-100 disabled:text-zinc-500"
-                >
-                  {organizations.length === 0 ? (
-                    <option value="">Sin organización</option>
-                  ) : (
-                    organizations.map((organization) => (
-                      <option key={organization.id} value={organization.id}>
-                        {organization.name}
-                      </option>
-                    ))
-                  )}
-                </select>
-                <ChevronDown className="pointer-events-none absolute right-3 top-1/2 size-4 -translate-y-1/2 text-zinc-500" />
-              </div>
+              </span>
+              <Select
+                value={selectedOrganizationId || undefined}
+                onValueChange={handleOrganizationChange}
+                disabled={organizations.length === 0}
+              >
+                <SelectTrigger aria-label="Seleccionar organización">
+                  <Building2
+                    className="size-4 shrink-0 text-muted-foreground"
+                    aria-hidden="true"
+                  />
+                  <SelectValue placeholder="Sin organización">
+                    {selectedOrganizationName}
+                  </SelectValue>
+                </SelectTrigger>
+                <SelectContent>
+                  {organizations.map((organization) => (
+                    <SelectItem key={organization.id} value={organization.id}>
+                      {organization.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <nav
@@ -120,10 +131,11 @@ export function InternalShell({
                         ? `${item.href}?organization=${selectedOrganizationId}`
                         : item.href
                     }
-                    className={`flex h-10 items-center gap-2 rounded-md px-3 text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2 ${
+                    aria-current={isActive ? "page" : undefined}
+                    className={`flex h-11 items-center gap-3 rounded-lg px-3 text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 ${
                       isActive
-                        ? "bg-emerald-50 text-emerald-800"
-                        : "text-zinc-700 hover:bg-zinc-100 hover:text-zinc-950"
+                        ? "bg-accent text-accent-foreground"
+                        : "text-foreground/80 hover:bg-secondary hover:text-foreground"
                     }`}
                   >
                     <Icon className="size-4 shrink-0" aria-hidden="true" />
@@ -133,26 +145,34 @@ export function InternalShell({
               })}
             </nav>
 
-            <div className="mt-auto grid gap-3 rounded-md border border-zinc-200 bg-white p-3">
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium text-zinc-900">
-                  {userEmail}
-                </p>
-                <p className="text-xs text-zinc-500">Usuario actual</p>
+            <div className="mt-auto grid gap-3 rounded-xl border border-border bg-background p-3">
+              <div className="flex min-w-0 items-center gap-3">
+                <Avatar>
+                  <AvatarFallback>{userInitial}</AvatarFallback>
+                </Avatar>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-medium text-foreground">
+                    {userEmail}
+                  </p>
+                  <p className="text-xs text-muted-foreground">Sesión activa</p>
+                </div>
               </div>
               <form action={signOut}>
-                <button
+                <Button
                   type="submit"
-                  className="h-9 w-full rounded-md border border-zinc-300 bg-white px-3 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-100 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
+                  variant="outline"
+                  size="sm"
+                  className="w-full"
                 >
+                  <LogOut aria-hidden="true" />
                   Cerrar sesión
-                </button>
+                </Button>
               </form>
             </div>
           </div>
         </aside>
 
-        <main className="min-w-0 flex-1 px-4 py-5 sm:px-6 lg:px-8">
+        <main className="min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
           {children}
         </main>
       </div>

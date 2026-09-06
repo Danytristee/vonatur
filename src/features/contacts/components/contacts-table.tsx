@@ -1,5 +1,8 @@
 import { updateContact } from "@/features/contacts/actions";
 import type { ContactListItem } from "@/features/contacts/types";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
 
 type ContactsTableProps = {
   contacts: ContactListItem[];
@@ -8,23 +11,23 @@ type ContactsTableProps = {
 export function ContactsTable({ contacts }: ContactsTableProps) {
   if (contacts.length === 0) {
     return (
-      <div className="rounded-md border border-dashed border-zinc-300 bg-white p-8 text-center">
-        <h2 className="text-base font-semibold text-zinc-950">
+      <Card className="border-dashed p-8 text-center shadow-none">
+        <h2 className="text-base font-semibold text-foreground">
           Aún no hay contactos
         </h2>
-        <p className="mt-2 text-sm text-zinc-600">
-          Crea contactos base para que luego las importaciones puedan emparejarse
-          por código.
+        <p className="mt-2 text-sm text-muted-foreground">
+          Crea contactos base para que luego las importaciones puedan
+          emparejarse por código.
         </p>
-      </div>
+      </Card>
     );
   }
 
   return (
-    <div className="overflow-hidden rounded-md border border-zinc-200 bg-white">
+    <Card className="overflow-hidden p-0">
       <div className="overflow-x-auto">
-        <table className="min-w-[980px] divide-y divide-zinc-200 text-sm">
-          <thead className="bg-zinc-50 text-left text-xs font-semibold uppercase tracking-normal text-zinc-600">
+        <table className="min-w-[980px] divide-y divide-border text-sm">
+          <thead className="bg-secondary text-left text-xs font-semibold uppercase tracking-wide text-muted-foreground">
             <tr>
               <th className="px-4 py-3">Código</th>
               <th className="px-4 py-3">Nombre</th>
@@ -35,15 +38,17 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
               <th className="px-4 py-3 text-right">Acción</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-zinc-100">
+          <tbody className="divide-y divide-border">
             {contacts.map((contact) => (
               <tr key={contact.id} className="align-top">
                 <td className="px-4 py-3">
                   <div className="grid gap-1">
-                    <span className="font-semibold text-zinc-950">
+                    <span className="font-semibold text-foreground">
                       {contact.externalCode}
                     </span>
-                    <span className="text-xs text-zinc-500">No editable</span>
+                    <span className="text-xs text-muted-foreground">
+                      No editable
+                    </span>
                   </div>
                 </td>
                 <td className="px-4 py-3">
@@ -63,24 +68,24 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
                   <label className="sr-only" htmlFor={`fullName-${contact.id}`}>
                     Nombre completo
                   </label>
-                  <input
+                  <Input
                     id={`fullName-${contact.id}`}
                     form={`contact-${contact.id}`}
                     name="fullName"
                     defaultValue={contact.fullName ?? ""}
-                    className="h-9 w-56 rounded-md border border-zinc-300 px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                    className="h-9 w-56"
                   />
                 </td>
                 <td className="px-4 py-3">
                   <label className="sr-only" htmlFor={`phone-${contact.id}`}>
                     Teléfono
                   </label>
-                  <input
+                  <Input
                     id={`phone-${contact.id}`}
                     form={`contact-${contact.id}`}
                     name="phone"
                     defaultValue={contact.phone ?? ""}
-                    className="h-9 w-36 rounded-md border border-zinc-300 px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                    className="h-9 w-36"
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -90,12 +95,12 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
                   >
                     Estado
                   </label>
-                  <input
+                  <Input
                     id={`currentStatus-${contact.id}`}
                     form={`contact-${contact.id}`}
                     name="currentStatus"
                     defaultValue={contact.currentStatus ?? ""}
-                    className="h-9 w-32 rounded-md border border-zinc-300 px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                    className="h-9 w-32"
                   />
                 </td>
                 <td className="px-4 py-3">
@@ -105,40 +110,42 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
                   >
                     Nivel
                   </label>
-                  <input
+                  <Input
                     id={`currentLevel-${contact.id}`}
                     form={`contact-${contact.id}`}
                     name="currentLevel"
                     defaultValue={contact.currentLevel ?? ""}
-                    className="h-9 w-28 rounded-md border border-zinc-300 px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                    className="h-9 w-28"
                   />
                 </td>
                 <td className="px-4 py-3">
                   <label className="sr-only" htmlFor={`district-${contact.id}`}>
                     Distrito
                   </label>
-                  <input
+                  <Input
                     id={`district-${contact.id}`}
                     form={`contact-${contact.id}`}
                     name="district"
                     defaultValue={contact.district ?? ""}
-                    className="h-9 w-36 rounded-md border border-zinc-300 px-3 text-sm outline-none focus:border-emerald-600 focus:ring-2 focus:ring-emerald-100"
+                    className="h-9 w-36"
                   />
                 </td>
                 <td className="px-4 py-3 text-right">
-                  <button
+                  <Button
                     form={`contact-${contact.id}`}
                     type="submit"
-                    className="h-9 rounded-md border border-zinc-300 px-3 text-xs font-semibold text-zinc-800 transition hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
+                    variant="outline"
+                    size="sm"
+                    className="h-9"
                   >
                     Guardar
-                  </button>
+                  </Button>
                 </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
-    </div>
+    </Card>
   );
 }

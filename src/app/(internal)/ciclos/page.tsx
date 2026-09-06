@@ -1,3 +1,4 @@
+import { ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -7,6 +8,7 @@ import {
 import { CreateCycleForm } from "@/features/cycles/components/create-cycle-form";
 import { CyclesTable } from "@/features/cycles/components/cycles-table";
 import { getCyclesPageData } from "@/features/cycles/queries";
+import { Button } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -39,12 +41,12 @@ export default async function CyclesPage({ searchParams }: CyclesPageProps) {
         title="Ciclos comerciales"
         description="Crea ciclos en borrador y revisa su estado. La activación queda bloqueada hasta completar importación, preview y confirmación."
         action={
-          <Link
-            href={`/importaciones?organization=${selectedOrganizationId}`}
-            className="inline-flex h-10 items-center justify-center rounded-md bg-emerald-700 px-4 text-sm font-semibold text-white transition hover:bg-emerald-800 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:ring-offset-2"
-          >
-            Ir a importaciones
-          </Link>
+          <Button asChild size="sm">
+            <Link href={`/importaciones?organization=${selectedOrganizationId}`}>
+              Ir a importaciones
+              <ArrowRight />
+            </Link>
+          </Button>
         }
       />
 
@@ -52,10 +54,10 @@ export default async function CyclesPage({ searchParams }: CyclesPageProps) {
         <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px] lg:items-start">
           <section className="grid gap-3">
             <div>
-              <h2 className="text-base font-semibold text-zinc-950">
+              <h2 className="text-base font-semibold text-foreground">
                 Historial de ciclos
               </h2>
-              <p className="mt-1 text-sm text-zinc-600">
+              <p className="mt-1 text-sm text-muted-foreground">
                 {cycles.length} ciclo{cycles.length === 1 ? "" : "s"} registrado
                 {cycles.length === 1 ? "" : "s"}
               </p>

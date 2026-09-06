@@ -4,21 +4,22 @@ import { InternalShell } from "@/features/app-shell/internal-shell";
 import { getCurrentUserOrganizations } from "@/lib/organizations/queries";
 import { hasSupabaseBrowserEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
+import { Alert } from "@/components/ui/alert";
 
 export const dynamic = "force-dynamic";
 
 function SupabaseSetupRequired() {
   return (
-    <main className="flex min-h-screen items-center justify-center bg-zinc-50 px-4 py-10 text-zinc-950">
-      <section className="w-full max-w-lg rounded-md border border-amber-200 bg-amber-50 p-5">
-        <h1 className="text-lg font-semibold text-amber-950">
+    <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10 text-foreground">
+      <section className="w-full max-w-lg">
+        <h1 className="mb-3 text-lg font-semibold">
           Supabase no está configurado
         </h1>
-        <p className="mt-2 text-sm leading-6 text-amber-900">
+        <Alert variant="warning">
           Agrega `NEXT_PUBLIC_SUPABASE_URL` y
-          `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para habilitar
-          el acceso interno de Vonatur.
-        </p>
+          `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para
+          habilitar el acceso interno de Vonatur.
+        </Alert>
       </section>
     </main>
   );
