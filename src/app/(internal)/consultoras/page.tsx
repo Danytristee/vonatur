@@ -46,10 +46,7 @@ export default async function ConsultorasPage({
 
   return (
     <div className="grid gap-6">
-      <PageHeader
-        title="Consultoras"
-        description="Directorio operativo de consultoras con su situación de deuda del ciclo activo. El código se conserva estable porque es la llave de correlación de los reportes."
-      />
+      <PageHeader title="Consultoras" />
 
       <ContactsFilters
         organizationId={selectedOrganizationId}

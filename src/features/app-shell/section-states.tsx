@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 type PageHeaderProps = {
   eyebrow?: string;
   title: string;
-  description: string;
+  description?: string;
   action?: ReactNode;
 };
 
@@ -25,9 +25,11 @@ export function PageHeader({
         <h1 className="mt-1 text-2xl font-semibold text-foreground">
           {title}
         </h1>
-        <p className="mt-2 text-sm leading-6 text-muted-foreground">
-          {description}
-        </p>
+        {description ? (
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+            {description}
+          </p>
+        ) : null}
       </div>
       {action}
     </div>
