@@ -1,27 +1,49 @@
 "use client";
 
 import * as DialogPrimitive from "@radix-ui/react-dialog";
+import { type VariantProps, cva } from "class-variance-authority";
 import { X } from "lucide-react";
 import type { ComponentProps } from "react";
 
 import { cn } from "@/lib/utils";
 
-export const Dialog = DialogPrimitive.Root;
-export const DialogTrigger = DialogPrimitive.Trigger;
+export const Sheet = DialogPrimitive.Root;
+export const SheetTrigger = DialogPrimitive.Trigger;
+export const SheetClose = DialogPrimitive.Close;
 
-export function DialogContent({
+const sheetVariants = cva(
+  "fixed z-50 grid gap-4 border-border bg-card p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out",
+  {
+    variants: {
+      side: {
+        right:
+          "inset-y-0 right-0 h-full w-[calc(100%-2rem)] max-w-sm border-l data-[state=closed]:slide-out-to-right data-[state=open]:slide-in-from-right",
+        left: "inset-y-0 left-0 h-full w-[calc(100%-2rem)] max-w-sm border-r data-[state=closed]:slide-out-to-left data-[state=open]:slide-in-from-left",
+        top: "inset-x-0 top-0 max-h-[90vh] border-b data-[state=closed]:slide-out-to-top data-[state=open]:slide-in-from-top",
+        bottom:
+          "inset-x-0 bottom-0 max-h-[90vh] border-t data-[state=closed]:slide-out-to-bottom data-[state=open]:slide-in-from-bottom",
+      },
+    },
+    defaultVariants: {
+      side: "right",
+    },
+  },
+);
+
+type SheetContentProps = ComponentProps<typeof DialogPrimitive.Content> &
+  VariantProps<typeof sheetVariants>;
+
+export function SheetContent({
   className,
+  side,
   children,
   ...props
-}: ComponentProps<typeof DialogPrimitive.Content>) {
+}: SheetContentProps) {
   return (
     <DialogPrimitive.Portal>
       <DialogPrimitive.Overlay className="fixed inset-0 z-50 bg-foreground/40 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0" />
       <DialogPrimitive.Content
-        className={cn(
-          "fixed left-1/2 top-1/2 z-50 grid max-h-[90vh] w-[calc(100%-2rem)] max-w-lg -translate-x-1/2 -translate-y-1/2 gap-4 overflow-y-auto rounded-xl border border-border bg-card p-6 shadow-lg duration-200 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 data-[state=closed]:zoom-out-95 data-[state=open]:zoom-in-95",
-          className,
-        )}
+        className={cn(sheetVariants({ side }), className)}
         {...props}
       >
         {children}
@@ -34,11 +56,11 @@ export function DialogContent({
   );
 }
 
-export function DialogHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
+export function SheetHeader({ className, ...props }: React.HTMLAttributes<HTMLDivElement>) {
   return <div className={cn("grid gap-1.5 pr-6", className)} {...props} />;
 }
 
-export function DialogTitle({
+export function SheetTitle({
   className,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Title>) {
@@ -50,7 +72,7 @@ export function DialogTitle({
   );
 }
 
-export function DialogDescription({
+export function SheetDescription({
   className,
   ...props
 }: ComponentProps<typeof DialogPrimitive.Description>) {

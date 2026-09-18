@@ -5,6 +5,7 @@ import { useId, useState, useTransition } from "react";
 
 import { updateContact } from "@/features/contacts/actions";
 import type { ContactActionState, ContactListItem } from "@/features/contacts/types";
+import { NotesPopover } from "@/features/notes/components/notes-popover";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -185,15 +186,22 @@ export function ContactRow({ contact }: { contact: ContactListItem }) {
             </Button>
           </div>
         ) : (
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => setIsEditing(true)}
-          >
-            <Pencil aria-hidden="true" />
-            Editar
-          </Button>
+          <div className="flex justify-end gap-2">
+            <NotesPopover
+              organizationId={contact.organizationId}
+              contactId={contact.id}
+              contactLabel={contact.fullName ?? contact.externalCode}
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setIsEditing(true)}
+            >
+              <Pencil aria-hidden="true" />
+              Editar
+            </Button>
+          </div>
         )}
         {state.message && isEditing ? (
           <p className="mt-2 max-w-48 text-right text-xs text-destructive">

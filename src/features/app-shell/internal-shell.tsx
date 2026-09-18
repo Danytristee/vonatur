@@ -13,7 +13,8 @@ import {
   Upload,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { usePathname } from "next/navigation";
+import { useQueryState } from "nuqs";
 import type { ReactNode } from "react";
 
 import { signOut } from "@/features/auth/actions";
@@ -51,9 +52,8 @@ export function InternalShell({
   userEmail,
 }: InternalShellProps) {
   const pathname = usePathname();
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const requestedOrganizationId = searchParams.get("organization");
+  const [requestedOrganizationId, setOrganizationId] =
+    useQueryState("organization");
   const selectedOrganizationId =
     organizations.find(
       (organization) => organization.id === requestedOrganizationId,
@@ -66,9 +66,7 @@ export function InternalShell({
   const userInitial = userEmail.trim().charAt(0).toUpperCase() || "U";
 
   function handleOrganizationChange(value: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("organization", value);
-    router.replace(`${pathname}?${params.toString()}`);
+    void setOrganizationId(value);
   }
 
   return (

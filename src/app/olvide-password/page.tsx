@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 
-import { LoginForm } from "@/features/auth/components/login-form";
+import { ForgotPasswordForm } from "@/features/auth/components/forgot-password-form";
 import { LoginHero } from "@/features/auth/components/login-hero";
 import { Alert } from "@/components/ui/alert";
 import { hasSupabaseBrowserEnv } from "@/lib/supabase/env";
@@ -8,8 +8,15 @@ import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+type ForgotPasswordPageProps = {
+  searchParams: Promise<{ expired?: string }>;
+};
+
+export default async function ForgotPasswordPage({
+  searchParams,
+}: ForgotPasswordPageProps) {
   const isSupabaseConfigured = hasSupabaseBrowserEnv();
+  const params = await searchParams;
 
   if (isSupabaseConfigured) {
     const supabase = await createClient();
@@ -37,20 +44,28 @@ export default async function LoginPage() {
 
           <div className="mb-7 grid gap-1">
             <h2 className="text-2xl font-semibold text-foreground">
-              Bienvenida de nuevo
+              Recupera tu contraseña
             </h2>
             <p className="text-sm leading-6 text-muted-foreground">
-              Ingresa con tu cuenta para ver tus ciclos, consultoras y deudas.
+              Ingresa tu correo y te enviamos un enlace para definir una
+              contraseña nueva.
             </p>
           </div>
 
           {isSupabaseConfigured ? (
-            <LoginForm />
+            <div className="grid gap-5">
+              {params.expired ? (
+                <Alert variant="warning">
+                  Ese enlace ya expiró o no es válido. Solicita uno nuevo.
+                </Alert>
+              ) : null}
+              <ForgotPasswordForm />
+            </div>
           ) : (
             <Alert variant="warning">
               Configura `NEXT_PUBLIC_SUPABASE_URL` y
               `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para
-              habilitar el inicio de sesión.
+              habilitar la recuperación de contraseña.
             </Alert>
           )}
         </div>

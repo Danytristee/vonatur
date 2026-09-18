@@ -1,7 +1,8 @@
 "use client";
 
+import Link from "next/link";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
-import { useActionState, useId, useState } from "react";
+import { useActionState, useEffect, useId, useRef, useState } from "react";
 
 import {
   type LoginActionState,
@@ -16,14 +17,46 @@ const initialState: LoginActionState = {
   message: null,
 };
 
+// Cheap client-side friction on top of Supabase Auth's own server-side rate
+// limiting: after a few failed attempts in a row, pause the form briefly
+// instead of letting every keystroke retrigger a request.
+const FAILURES_BEFORE_COOLDOWN = 3;
+const COOLDOWN_SECONDS = 15;
+
 export function LoginForm() {
   const [state, formAction, isPending] = useActionState(
     signInWithPassword,
     initialState,
   );
   const [showPassword, setShowPassword] = useState(false);
+  const [cooldown, setCooldown] = useState(0);
+  const consecutiveFailures = useRef(0);
   const emailId = useId();
   const passwordId = useId();
+
+  useEffect(() => {
+    if (!state.message) {
+      return;
+    }
+
+    consecutiveFailures.current += 1;
+    if (consecutiveFailures.current >= FAILURES_BEFORE_COOLDOWN) {
+      consecutiveFailures.current = 0;
+      setCooldown(COOLDOWN_SECONDS);
+    }
+  }, [state]);
+
+  useEffect(() => {
+    if (cooldown <= 0) {
+      return;
+    }
+
+    const timer = setInterval(() => {
+      setCooldown((seconds) => Math.max(0, seconds - 1));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [cooldown]);
 
   return (
     <form action={formAction} className="grid gap-5" noValidate>
@@ -47,7 +80,15 @@ export function LoginForm() {
       </div>
 
       <div className="grid gap-2">
-        <Label htmlFor={passwordId}>Contraseña</Label>
+        <div className="flex items-center justify-between">
+          <Label htmlFor={passwordId}>Contraseña</Label>
+          <Link
+            href="/olvide-password"
+            className="text-sm font-medium text-primary hover:underline"
+          >
+            ¿Olvidaste tu contraseña?
+          </Link>
+        </div>
         <div className="relative">
           <Lock
             className="pointer-events-none absolute left-3 top-1/2 size-5 -translate-y-1/2 text-muted-foreground"
@@ -83,8 +124,17 @@ export function LoginForm() {
         <Alert variant="destructive">{state.message}</Alert>
       ) : null}
 
-      <Button type="submit" size="lg" disabled={isPending} className="w-full">
-        {isPending ? "Ingresando..." : "Iniciar sesión"}
+      <Button
+        type="submit"
+        size="lg"
+        disabled={isPending || cooldown > 0}
+        className="w-full"
+      >
+        {isPending
+          ? "Ingresando..."
+          : cooldown > 0
+            ? `Espera ${cooldown}s`
+            : "Iniciar sesión"}
       </Button>
     </form>
   );

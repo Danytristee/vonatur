@@ -1,5 +1,6 @@
 @AGENTS.md
 @docs/PROJECT_CONTEXT.md
+@docs/PROJECT.md
 
 # Vonatur — Project Instructions
 

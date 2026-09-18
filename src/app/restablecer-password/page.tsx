@@ -1,24 +1,30 @@
-import { redirect } from "next/navigation";
+import Link from "next/link";
 
-import { LoginForm } from "@/features/auth/components/login-form";
 import { LoginHero } from "@/features/auth/components/login-hero";
+import { ResetPasswordForm } from "@/features/auth/components/reset-password-form";
 import { Alert } from "@/components/ui/alert";
 import { hasSupabaseBrowserEnv } from "@/lib/supabase/env";
 import { createClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export default async function LoginPage() {
+export default async function ResetPasswordPage() {
   const isSupabaseConfigured = hasSupabaseBrowserEnv();
 
-  if (isSupabaseConfigured) {
-    const supabase = await createClient();
-    const { data: claims } = await supabase.auth.getClaims();
-
-    if (claims) {
-      redirect("/dashboard");
-    }
+  if (!isSupabaseConfigured) {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
+        <Alert variant="warning">
+          Configura `NEXT_PUBLIC_SUPABASE_URL` y
+          `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para
+          habilitar el restablecimiento de contraseña.
+        </Alert>
+      </main>
+    );
   }
+
+  const supabase = await createClient();
+  const { data: claims } = await supabase.auth.getClaims();
 
   return (
     <main className="flex min-h-screen bg-card">
@@ -37,21 +43,27 @@ export default async function LoginPage() {
 
           <div className="mb-7 grid gap-1">
             <h2 className="text-2xl font-semibold text-foreground">
-              Bienvenida de nuevo
+              Define tu contraseña nueva
             </h2>
             <p className="text-sm leading-6 text-muted-foreground">
-              Ingresa con tu cuenta para ver tus ciclos, consultoras y deudas.
+              Tiene que tener al menos 8 caracteres.
             </p>
           </div>
 
-          {isSupabaseConfigured ? (
-            <LoginForm />
+          {claims ? (
+            <ResetPasswordForm />
           ) : (
-            <Alert variant="warning">
-              Configura `NEXT_PUBLIC_SUPABASE_URL` y
-              `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` en `.env.local` para
-              habilitar el inicio de sesión.
-            </Alert>
+            <div className="grid gap-5">
+              <Alert variant="warning">
+                Este enlace ya expiró o no es válido. Solicita uno nuevo.
+              </Alert>
+              <Link
+                href="/olvide-password"
+                className="text-sm font-medium text-primary hover:underline"
+              >
+                Solicitar un enlace nuevo
+              </Link>
+            </div>
           )}
         </div>
       </div>

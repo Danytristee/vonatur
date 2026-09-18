@@ -4,6 +4,8 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 
+import { forgotPasswordSchema, resetPasswordSchema } from "./schemas";
+
 export type LoginActionState = {
   message: string | null;
 };
@@ -87,4 +89,139 @@ export async function signOut() {
   await supabase.auth.signOut();
 
   redirect("/login");
+}
+
+export type ForgotPasswordActionState = {
+  status: "idle" | "sent" | "error";
+  message: string | null;
+};
+
+const GENERIC_RESET_SENT_MESSAGE =
+  "Si el correo está registrado, te enviamos un enlace para restablecer tu contraseña.";
+
+// Deliberately not derived from the Origin/Host request headers: those are
+// attacker-controllable and using them here would let a forged header poison
+// the password-reset email with a link to an attacker's domain.
+function resolveOrigin() {
+  const origin = process.env.APP_ORIGIN;
+
+  if (!origin) {
+    throw new Error(
+      "APP_ORIGIN no está configurado. Defínelo con la URL pública del despliegue para generar enlaces de restablecimiento de contraseña.",
+    );
+  }
+
+  return origin;
+}
+
+// Supabase never reveals whether an email is registered, so every outcome
+// short of a genuine operational failure (rate limit, connectivity) returns
+// the same "sent" message — the form must not become an email-enumeration
+// oracle.
+export async function requestPasswordReset(
+  _previousState: ForgotPasswordActionState,
+  formData: FormData,
+): Promise<ForgotPasswordActionState> {
+  const parsed = forgotPasswordSchema.safeParse({
+    email: String(formData.get("email") ?? "").trim(),
+  });
+
+  if (!parsed.success) {
+    return {
+      status: "error",
+      message: parsed.error.issues[0]?.message ?? "Ingresa un correo válido.",
+    };
+  }
+
+  const supabase = await createClient();
+  const origin = resolveOrigin();
+
+  const { error } = await supabase.auth.resetPasswordForEmail(
+    parsed.data.email,
+    { redirectTo: `${origin}/auth/confirm?next=/restablecer-password` },
+  );
+
+  if (error) {
+    console.error("[auth] resetPasswordForEmail failed", {
+      code: error.code,
+      status: error.status,
+      name: error.name,
+      message: error.message,
+    });
+
+    if (
+      error.code === "over_email_send_rate_limit" ||
+      error.code === "over_request_rate_limit"
+    ) {
+      return {
+        status: "error",
+        message:
+          "Ya enviamos un enlace recientemente. Espera unos minutos e inténtalo de nuevo.",
+      };
+    }
+
+    if (error.name === "AuthRetryableFetchError") {
+      return {
+        status: "error",
+        message:
+          "No pudimos contactar a Supabase. Intenta de nuevo en un momento.",
+      };
+    }
+
+    // Any other failure (including "email not found") stays generic below.
+  }
+
+  return { status: "sent", message: GENERIC_RESET_SENT_MESSAGE };
+}
+
+export type UpdatePasswordActionState = {
+  message: string | null;
+};
+
+export async function updatePassword(
+  _previousState: UpdatePasswordActionState,
+  formData: FormData,
+): Promise<UpdatePasswordActionState> {
+  const parsed = resetPasswordSchema.safeParse({
+    password: String(formData.get("password") ?? ""),
+    confirmPassword: String(formData.get("confirmPassword") ?? ""),
+  });
+
+  if (!parsed.success) {
+    return {
+      message: parsed.error.issues[0]?.message ?? "Revisa la contraseña.",
+    };
+  }
+
+  const supabase = await createClient();
+  const { error } = await supabase.auth.updateUser({
+    password: parsed.data.password,
+  });
+
+  if (error) {
+    console.error("[auth] updateUser (password) failed", {
+      code: error.code,
+      status: error.status,
+      name: error.name,
+      message: error.message,
+    });
+
+    if (error.code === "same_password") {
+      return { message: "La nueva contraseña debe ser distinta a la actual." };
+    }
+
+    if (error.name === "AuthRetryableFetchError") {
+      return {
+        message:
+          "No pudimos contactar a Supabase. Intenta de nuevo en un momento.",
+      };
+    }
+
+    return {
+      message:
+        "No pudimos actualizar la contraseña. El enlace pudo expirar — solicita uno nuevo.",
+    };
+  }
+
+  redirect("/dashboard");
 }

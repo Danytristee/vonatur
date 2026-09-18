@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -88,6 +88,13 @@ export type Database = {
             referencedRelation: "cycles"
             referencedColumns: ["id", "organization_id"]
           },
+          {
+            foreignKeyName: "audit_logs_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
         ]
       }
       contact_cycle_data: {
@@ -143,6 +150,38 @@ export type Database = {
             columns: ["cycle_id", "organization_id"]
             isOneToOne: false
             referencedRelation: "cycles"
+            referencedColumns: ["id", "organization_id"]
+          },
+        ]
+      }
+      contact_notes: {
+        Row: {
+          body: string
+          contact_id: string
+          created_at: string
+          id: string
+          organization_id: string
+        }
+        Insert: {
+          body: string
+          contact_id: string
+          created_at?: string
+          id?: string
+          organization_id: string
+        }
+        Update: {
+          body?: string
+          contact_id?: string
+          created_at?: string
+          id?: string
+          organization_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_notes_contact_fkey"
+            columns: ["contact_id", "organization_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
             referencedColumns: ["id", "organization_id"]
           },
         ]

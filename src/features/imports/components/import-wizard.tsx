@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertTriangle, CheckCircle2, FileSpreadsheet, Upload } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
 import { useRef, useState, useTransition } from "react";
 
 import { confirmCycleImport, previewCycleImport } from "@/features/imports/actions";
@@ -71,32 +72,38 @@ export function ImportWizard({ organizationId, draftCycle }: ImportWizardProps) 
   if (confirmState.status === "done") {
     const { summary } = confirmState;
     return (
-      <Card className="grid gap-4 p-6">
-        <div className="flex items-start gap-3">
-          <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-success-muted">
-            <CheckCircle2
-              className="size-5 text-success-muted-foreground"
-              aria-hidden="true"
-            />
+      <motion.div
+        initial={{ opacity: 0, y: 8, scale: 0.98 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      >
+        <Card className="grid gap-4 p-6">
+          <div className="flex items-start gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-success-muted">
+              <CheckCircle2
+                className="size-5 text-success-muted-foreground"
+                aria-hidden="true"
+              />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-foreground">
+                Ciclo {draftCycle.cycleNumber} · {draftCycle.year} activado
+              </h2>
+              <p className="mt-1 text-sm leading-6 text-muted-foreground">
+                El ciclo anterior quedó archivado en el historial. Ya puedes
+                ver las consultoras y deudas actualizadas.
+              </p>
+            </div>
           </div>
-          <div>
-            <h2 className="text-base font-semibold text-foreground">
-              Ciclo {draftCycle.cycleNumber} · {draftCycle.year} activado
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-muted-foreground">
-              El ciclo anterior quedó archivado en el historial. Ya puedes ver
-              las consultoras y deudas actualizadas.
-            </p>
-          </div>
-        </div>
 
-        <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-          <SummaryStat label="Consultoras nuevas" value={summary.contactsCreated} />
-          <SummaryStat label="Consultoras actualizadas" value={summary.contactsUpdated} />
-          <SummaryStat label="Deudas importadas" value={summary.debtsInserted} />
-          <SummaryStat label="Cambios registrados" value={summary.auditLogEntries} />
-        </dl>
-      </Card>
+          <dl className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <SummaryStat label="Consultoras nuevas" value={summary.contactsCreated} />
+            <SummaryStat label="Consultoras actualizadas" value={summary.contactsUpdated} />
+            <SummaryStat label="Deudas importadas" value={summary.debtsInserted} />
+            <SummaryStat label="Cambios registrados" value={summary.auditLogEntries} />
+          </dl>
+        </Card>
+      </motion.div>
     );
   }
 
@@ -142,17 +149,27 @@ export function ImportWizard({ organizationId, draftCycle }: ImportWizardProps) 
           <Alert variant="destructive">{previewState.message}</Alert>
         ) : null}
 
-        {previewState.status === "ready" ? (
-          <PreviewSummary
-            preview={previewState.preview}
-            isConfirmPending={isConfirmPending}
-            confirmError={
-              confirmState.status === "error" ? confirmState.message : null
-            }
-            onConfirm={handleConfirm}
-            onStartOver={handleStartOver}
-          />
-        ) : null}
+        <AnimatePresence>
+          {previewState.status === "ready" ? (
+            <motion.div
+              key="preview"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.25, ease: "easeOut" }}
+            >
+              <PreviewSummary
+                preview={previewState.preview}
+                isConfirmPending={isConfirmPending}
+                confirmError={
+                  confirmState.status === "error" ? confirmState.message : null
+                }
+                onConfirm={handleConfirm}
+                onStartOver={handleStartOver}
+              />
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </CardContent>
     </Card>
   );
